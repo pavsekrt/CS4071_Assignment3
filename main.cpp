@@ -9,21 +9,73 @@ struct edge {
   int j;
 };
 
+class AdjacencyMatrix{
+  public:
+    int **adj;
+    int n;
+    AdjacencyMatrix(int n){
+      this->n = n;
+      adj = new int* [n];
+      for (int i = 0; i < n; i++){
+        adj[i] = new int [n];
+        for(int j = 0; j < n; j++){
+            adj[i][j] = 0;
+        }
+      }
+    }
+    void addEdges(const vector<edge> E){
+      for (size_t i = 0; i < E.size(); i++) {
+        addEdge(E.at(i).i, E.at(i).j);
+      }
+    }
+    void addEdge(int i, int j){
+      if( i > n || j > n || i < 0 || j < 0){
+        cout<<"Invalid edge!\n";
+      }else{
+        adj[i][j] += 1;
+        adj[j][i] += 1;
+      }
+    }
+    void print(){
+      int i,j;
+      for(i = 0;i < n;i++){
+        for(j = 0; j < n; j++){
+          cout<<adj[i][j]<<"  ";
+        }
+        cout<<endl;
+      }
+    }
+
+};
+
+
+void displayAM(int n, const int ** adj)
+{
+    int i,j;
+    for(i = 0;i < n;i++)
+    {
+        for(j = 0; j < n; j++)
+            cout<<adj[i][j]<<"  ";
+        cout<<endl;
+    }
+}
 
 int main(int argc, char* argv[])
 {
+  int numOfVertices;
   vector<int> V;
   vector<edge> E;
   //Usage Test & setting V,E
   try{
-    if ((argc < 5)||(*argv[argc-1] != '-')||(argc%2==0)||(atoi(argv[1]) != ((argc-3)/2))) {
+    numOfVertices = atoi(argv[1]);
+    if ((argc < 5)||(*argv[argc-1] != '-')||(argc%2==0)||(numOfVertices != ((argc-3)/2))) {
       throw(0);
     }
-    for(size_t i = 0; i < atoi(argv[1]); i++){V.push_back(i);}
-    for (size_t i = 2; i < (argc-1); i+=2) {
+    for(size_t i = 0; i < numOfVertices; i++){V.push_back(i);}// V
+    for (size_t i = 2; i < (argc-1); i+=2) { // E
       int x = atoi(argv[i]);
       int y = atoi(argv[i+1]);
-      if (x > atoi(argv[1]) || x < 0 || y > atoi(argv[1]) || y < 0){
+      if (x > numOfVertices || x < 0 || y > numOfVertices || y < 0){
         throw(0);
       }
       edge t = {x, y};
@@ -34,7 +86,21 @@ int main(int argc, char* argv[])
     cerr << "n = number of vertices, i j = sequence of pairs (integers between 0 and n)" << endl << endl;
     return 1;
   }
-  //END Usage Test & setting V,E
+
+  AdjacencyMatrix a = AdjacencyMatrix(numOfVertices);
+  a.addEdges(E);
+  a.print();
+
+
+
+  // cout << "V: " << endl;
+  // for (size_t i = 0; i < V.size(); i++) {
+  //   cout << V.at(i) << ", ";
+  // }
+  // cout << endl << "E: " << endl;
+  // for (size_t i = 0; i < E.size(); i++) {
+  //   cout << "i = " << E.at(i).i << ", j = " << E.at(i).j << endl;
+  // }
 
 
 

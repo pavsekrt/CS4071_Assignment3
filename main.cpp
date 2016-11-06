@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <list>
+#include <queue>
 #include <string>
 
 using namespace std;
@@ -33,7 +35,7 @@ class AdjacencyMatrix{
         cout<<"Invalid edge!\n";
       }else{
         adj[i][j] += 1;
-        adj[j][i] += 1;
+        // adj[j][i] += 1;
       }
     }
     void print(){
@@ -48,7 +50,52 @@ class AdjacencyMatrix{
 
 };
 
+class BFS{
+  public:
+    int n;
+    list<int> *adj;
 
+    BFS(int n){
+      this->n = n;
+      adj = new list<int>[n];
+    }
+
+    void addEdges(const vector<edge> E){
+      for (size_t i = 0; i < E.size(); i++) {
+        addEdge(E.at(i).i, E.at(i).j);
+      }
+    }
+
+    void addEdge(int i, int j){
+      adj[i].push_back(j); // Add i to j’s list.
+      // adj[j].push_back(i); // Add j to i’s list.
+    }
+
+    void print(int s){
+      bool *visited = new bool[n];
+      for(size_t i = 0; i < n; i++){
+        visited[i] = false;
+      }
+      queue<int> q;
+      visited[s] = true;// current node as visited
+      q.push(s);//and enqueue it
+      list<int>::iterator i;//used to get all adjacent vertices
+      cout << "breadth-first search from " << s << endl;
+      while(!q.empty()){
+        s = q.front();// Dequeue from queue & print
+        cout << s << " ";
+        q.pop();
+        // adjacent has not been visited, mark  visited and enqueue
+        for(i = adj[s].begin(); i != adj[s].end(); ++i){
+          if(!visited[*i]){
+            visited[*i] = true;
+            q.push(*i);
+          }
+        }
+      }
+      cout << endl;
+    }
+};
 
 int main(int argc, char* argv[])
 {
@@ -76,10 +123,17 @@ int main(int argc, char* argv[])
     cerr << "n = number of vertices, i j = sequence of pairs (integers between 0 and n)" << endl << endl;
     return 1;
   }
-
+  //END
   AdjacencyMatrix a = AdjacencyMatrix(numOfVertices);
   a.addEdges(E);
-  a.print();
+  // a.print();
+  BFS b = BFS(numOfVertices);
+  b.addEdges(E);
+  b.print(0);
+  b.print(1);
+  b.print(2);
+  b.print(3);
+  b.print(4);
 
 
 

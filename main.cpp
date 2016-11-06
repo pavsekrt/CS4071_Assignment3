@@ -49,16 +49,6 @@ class AdjacencyMatrix{
 };
 
 
-void displayAM(int n, const int ** adj)
-{
-    int i,j;
-    for(i = 0;i < n;i++)
-    {
-        for(j = 0; j < n; j++)
-            cout<<adj[i][j]<<"  ";
-        cout<<endl;
-    }
-}
 
 int main(int argc, char* argv[])
 {

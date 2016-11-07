@@ -10,20 +10,41 @@ struct edge {
   int i;
   int j;
 };
+void printMatrix(int** g, int n){
+  int i,j;
+  for(i = 0;i < n;i++){
+    for(j = 0; j < n; j++){
+      cout<<g[i][j]<<"  ";
+    }
+    cout<<endl;
+  }
+}
 
-class AdjacencyMatrix{
-  public:
+class Graph{
+  private:
     int **adj;
     int n;
-    AdjacencyMatrix(int n){
+  public:
+    Graph(int n){
       this->n = n;
       adj = new int* [n];
-      for (int i = 0; i < n; i++){
+      for (int i = 0; i < n; i++){//nxn matrix of 0's
         adj[i] = new int [n];
         for(int j = 0; j < n; j++){
             adj[i][j] = 0;
         }
       }
+    }
+    Graph(const vector<edge> E, int n){
+      this->n = n;
+      adj = new int* [n];
+      for (int i = 0; i < n; i++){//nxn matrix of 0's
+        adj[i] = new int [n];
+        for(int j = 0; j < n; j++){
+            adj[i][j] = 0;
+        }
+      }
+      addEdges(E);
     }
     void addEdges(const vector<edge> E){
       for (size_t i = 0; i < E.size(); i++) {
@@ -35,68 +56,133 @@ class AdjacencyMatrix{
         cout<<"Invalid edge!\n";
       }else{
         adj[i][j] += 1;
-        // adj[j][i] += 1;
+        adj[j][i] += 1;
       }
     }
     void print(){
-      int i,j;
-      for(i = 0;i < n;i++){
-        for(j = 0; j < n; j++){
-          cout<<adj[i][j]<<"  ";
-        }
-        cout<<endl;
-      }
+      printMatrix(adj, n);
     }
-
-};
-
-class BFS{
-  public:
-    int n;
-    list<int> *adj;
-
-    BFS(int n){
-      this->n = n;
-      adj = new list<int>[n];
+    int** getGraph(){
+      return adj;
     }
-
-    void addEdges(const vector<edge> E){
-      for (size_t i = 0; i < E.size(); i++) {
-        addEdge(E.at(i).i, E.at(i).j);
-      }
-    }
-
-    void addEdge(int i, int j){
-      adj[i].push_back(j); // Add i to j’s list.
-      // adj[j].push_back(i); // Add j to i’s list.
-    }
-
-    void print(int s){
-      bool *visited = new bool[n];
-      for(size_t i = 0; i < n; i++){
-        visited[i] = false;
-      }
-      queue<int> q;
-      visited[s] = true;// current node as visited
-      q.push(s);//and enqueue it
-      list<int>::iterator i;//used to get all adjacent vertices
-      cout << "breadth-first search from " << s << endl;
-      while(!q.empty()){
-        s = q.front();// Dequeue from queue & print
-        cout << s << " ";
-        q.pop();
-        // adjacent has not been visited, mark  visited and enqueue
-        for(i = adj[s].begin(); i != adj[s].end(); ++i){
-          if(!visited[*i]){
-            visited[*i] = true;
-            q.push(*i);
-          }
-        }
-      }
-      cout << endl;
+    int getN(){
+      return n;
     }
 };
 
+int BFS(int** g, int start, int end, int numOfVertices) {
+  queue<int> verts;
+  queue<int> dist;
+  vector<bool> visited(numOfVertices);
+  visited.at(start) = true;
+  verts.push(start);
+  dist.push(0);
+
+  int curVert;
+  int distance;
+  while (!verts.empty()) {
+    vector<int> neighbors;
+    curVert = verts.front();
+    distance = dist.front();
+    // cout << curVert << " - " << distance << endl;
+    // return distance
+    if (curVert == end) {
+      return distance;
+    }
+    verts.pop();
+    dist.pop();
+    // get the neighbors of current vertex
+    for (int i = 0; i < numOfVertices; i++) {
+      if (g[i][curVert] == true) {
+        // add the vertex
+        neighbors.push_back(i);
+      }
+    }
+    // add neighbors & distance to queues
+    for (int i = 0; i < neighbors.size(); i++) {
+      if (!visited.at(neighbors[i])) {
+        visited.at(neighbors[i]) = true;
+        verts.push(neighbors[i]);
+        dist.push(distance + 1);
+      }
+    }
+  }
+  return -1;
+}
+
+int** distanceMatrix(int** g, int numOfVertices) {
+  int **matrix;
+
+  // BFS computes the distances for all elements
+  matrix = new int* [numOfVertices];
+  for (int i = 0; i < numOfVertices; i++) {
+    matrix[i] = new int [numOfVertices];
+    for (int j = 0; j < numOfVertices; j++) {
+      matrix[i][j] = BFS(g, i, j, numOfVertices);
+    }
+  }
+
+  return matrix;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// class BFS{
+//   public:
+//     int n;
+//     list<int> *adj;
+//     BFS(int n){
+//       this->n = n;
+//       adj = new list<int>[n];
+//     }
+//
+//     void addEdges(const vector<edge> E){
+//       for (size_t i = 0; i < E.size(); i++) {
+//         addEdge(E.at(i).i, E.at(i).j);
+//       }
+//     }
+//
+//     void addEdge(int i, int j){
+//       adj[i].push_back(j); // Add i to j’s list.
+//       adj[j].push_back(i); // Add j to i’s list.
+//     }
+//
+//     void print(int s){
+//       bool *visited = new bool[n];
+//       for(size_t i = 0; i < n; i++){
+//         visited[i] = false;
+//       }
+//       queue<int> q;
+//       visited[s] = true;// current node as visited
+//       q.push(s);//and enqueue it
+//       list<int>::iterator i;//used to get all adjacent vertices
+//       cout << "breadth-first search from " << s << endl;
+//       while(!q.empty()){
+//         s = q.front();// Dequeue from queue & print
+//         cout << s << " ";
+//         q.pop();
+//         // adjacent has not been visited, mark  visited and enqueue
+//         for(i = adj[s].begin(); i != adj[s].end(); ++i){
+//           if(!visited[*i]){
+//             visited[*i] = true;
+//             q.push(*i);
+//           }
+//         }
+//       }
+//       cout << endl;
+//     }
+// };
 int main(int argc, char* argv[])
 {
   int numOfVertices;
@@ -124,18 +210,12 @@ int main(int argc, char* argv[])
     return 1;
   }
   //END
-  AdjacencyMatrix a = AdjacencyMatrix(numOfVertices);
-  a.addEdges(E);
-  // a.print();
-  BFS b = BFS(numOfVertices);
-  b.addEdges(E);
-  b.print(0);
-  b.print(1);
-  b.print(2);
-  b.print(3);
-  b.print(4);
-
-
+  Graph a = Graph(E, numOfVertices);
+  a.print();
+  cout << endl;
+  int **matrix = distanceMatrix(a.getGraph() , numOfVertices);
+  printMatrix(matrix, numOfVertices);
+  cout << endl;
 
   // cout << "V: " << endl;
   // for (size_t i = 0; i < V.size(); i++) {

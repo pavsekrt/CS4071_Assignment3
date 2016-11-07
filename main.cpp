@@ -1,7 +1,13 @@
+/*
+//Assignment 3
+//Group 8
+//Ryan Pavsek & Sean Kennedy
+*/
 #include <iostream>
 #include <vector>
 #include <list>
 #include <queue>
+#include <stack>
 #include <string>
 
 using namespace std;
@@ -14,7 +20,7 @@ void printMatrix(int** g, int n){
   int i,j;
   for(i = 0;i < n;i++){
     for(j = 0; j < n; j++){
-      cout<<g[i][j]<<"  ";
+      cout<<g[i][j]<<"\t";
     }
     cout<<endl;
   }
@@ -22,26 +28,29 @@ void printMatrix(int** g, int n){
 
 class Graph{
   private:
-    int **adj;
-    int n;
+    int **adjMatrix;
+    list<int> *adjLL;
+    int n;//V
   public:
     Graph(int n){
       this->n = n;
-      adj = new int* [n];
+      adjLL = new list<int>[n];
+      adjMatrix = new int* [n];
       for (int i = 0; i < n; i++){//nxn matrix of 0's
-        adj[i] = new int [n];
+        adjMatrix[i] = new int [n];
         for(int j = 0; j < n; j++){
-            adj[i][j] = 0;
+            adjMatrix[i][j] = 0;
         }
       }
     }
     Graph(const vector<edge> E, int n){
       this->n = n;
-      adj = new int* [n];
+      adjLL = new list<int>[n];
+      adjMatrix = new int* [n];
       for (int i = 0; i < n; i++){//nxn matrix of 0's
-        adj[i] = new int [n];
+        adjMatrix[i] = new int [n];
         for(int j = 0; j < n; j++){
-            adj[i][j] = 0;
+            adjMatrix[i][j] = 0;
         }
       }
       addEdges(E);
@@ -51,22 +60,27 @@ class Graph{
         addEdge(E.at(i).i, E.at(i).j);
       }
     }
-    void addEdge(int i, int j){
+    void addEdge(int i, int j){//adds edges to Adjacency Matrix
       if( i > n || j > n || i < 0 || j < 0){
         cout<<"Invalid edge!\n";
       }else{
-        adj[i][j] += 1;
-        adj[j][i] += 1;
+        adjMatrix[i][j] += 1;
+        adjMatrix[j][i] += 1;
+        adjLL[i].push_back(j);
+        adjLL[j].push_back(i);
       }
     }
     void print(){
-      printMatrix(adj, n);
+      printMatrix(adjMatrix, n);
     }
     int** getGraph(){
-      return adj;
+      return adjMatrix;
     }
     int getN(){
       return n;
+    }
+    list<int>* &getAdjLL(){
+      return adjLL;
     }
 };
 
@@ -84,7 +98,6 @@ int BFS(int** g, int start, int end, int numOfVertices) {
     vector<int> neighbors;
     curVert = verts.front();
     distance = dist.front();
-    // cout << curVert << " - " << distance << endl;
     // return distance
     if (curVert == end) {
       return distance;
@@ -147,14 +160,62 @@ int diameter(int** g, int numOfVertices) {
   }
   return max;
 }
+void DFS(list<int>* &g, int v, bool visited[])
+{
+    // Mark the current node  visited
+    visited[v] = true;
+    cout << v << " ";
 
+    list<int>::iterator i;
+    for (i = g[v].begin(); i != g[v].end(); ++i)
+      if (!visited[*i])
+        DFS(g, *i, visited);
+}
+void order(list<int>* &g, int v, bool visited[], stack<int> &Stack)
+{
+  // current node visited
+  visited[v] = true;
 
+  list<int>::iterator i;
+  for(i = g[v].begin(); i != g[v].end(); ++i)
+    if(!visited[*i])
+      order(g, *i, visited, Stack);
 
+  Stack.push(v);
+}
 
+void Components(list<int>* &g, int numOfVertices)
+{
+  stack<int> Stack;
+  // vertices not visited
+  bool *visited = new bool[numOfVertices];
+  for(int i = 0; i < numOfVertices; i++)
+    visited[i] = false;
+  // Fill vertices in stack
+  for(int i = 0; i < numOfVertices; i++)
+    if(visited[i] == false){
+      order(g, i, visited, Stack);
+    }
 
+  // vertices as not visited
+  for(int i = 0; i < numOfVertices; i++){
+    visited[i] = false;
+  }
 
-
-
+  // process all vertices
+  while (Stack.empty() == false)
+  {
+    // Pop from stack
+    int v = Stack.top();
+    Stack.pop();
+    // Print connected component
+    if (visited[v] == false)
+    {
+      DFS(g, v, visited);
+      cout << endl;
+    }
+  }
+}
 
 
 int main(int argc, char* argv[])
@@ -185,20 +246,15 @@ int main(int argc, char* argv[])
   }
   //END
   Graph a = Graph(E, numOfVertices);
+  cout << endl << "Adjacency Matrix: " << endl;
   a.print();
-  cout << endl;
+  cout << endl << endl << "Distance Matrix: " << endl;
   int **dMatrix = distanceMatrix(a.getGraph() , numOfVertices);
   printMatrix(dMatrix, numOfVertices);
-  cout << endl;
+  cout << endl << endl << "Diameter: " << endl;
   cout << diameter(a.getGraph(), numOfVertices) << endl;
-  // cout << "V: " << endl;
-  // for (size_t i = 0; i < V.size(); i++) {
-  //   cout << V.at(i) << ", ";
-  // }
-  // cout << endl << "E: " << endl;
-  // for (size_t i = 0; i < E.size(); i++) {
-  //   cout << "i = " << E.at(i).i << ", j = " << E.at(i).j << endl;
-  // }
+  cout << endl << endl << "Components: " << endl;
+  Components(a.getAdjLL(), numOfVertices);
 
 
 

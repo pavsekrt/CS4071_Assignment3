@@ -125,6 +125,28 @@ int** distanceMatrix(int** g, int numOfVertices) {
   return matrix;
 }
 
+int diameter(int** g, int numOfVertices) {
+  // get distance matrix
+  int** matrix = distanceMatrix(g, numOfVertices);
+  // graph connected?
+  for (int i = 0; i < numOfVertices; i++) {
+    for (int j = 0; j < numOfVertices; j++) {
+      if (matrix[i][j] == -1) {
+        return -1;
+      }
+    }
+  }
+  // find max distance in distance matrix
+  int max = 0;
+  for (int i = 0; i < numOfVertices; i++) {
+    for (int j = 0; j < numOfVertices; j++) {
+      if (matrix[i][j] > max) {
+        max = matrix[i][j];
+      }
+    }
+  }
+  return max;
+}
 
 
 
@@ -135,54 +157,6 @@ int** distanceMatrix(int** g, int numOfVertices) {
 
 
 
-
-
-
-// class BFS{
-//   public:
-//     int n;
-//     list<int> *adj;
-//     BFS(int n){
-//       this->n = n;
-//       adj = new list<int>[n];
-//     }
-//
-//     void addEdges(const vector<edge> E){
-//       for (size_t i = 0; i < E.size(); i++) {
-//         addEdge(E.at(i).i, E.at(i).j);
-//       }
-//     }
-//
-//     void addEdge(int i, int j){
-//       adj[i].push_back(j); // Add i to j’s list.
-//       adj[j].push_back(i); // Add j to i’s list.
-//     }
-//
-//     void print(int s){
-//       bool *visited = new bool[n];
-//       for(size_t i = 0; i < n; i++){
-//         visited[i] = false;
-//       }
-//       queue<int> q;
-//       visited[s] = true;// current node as visited
-//       q.push(s);//and enqueue it
-//       list<int>::iterator i;//used to get all adjacent vertices
-//       cout << "breadth-first search from " << s << endl;
-//       while(!q.empty()){
-//         s = q.front();// Dequeue from queue & print
-//         cout << s << " ";
-//         q.pop();
-//         // adjacent has not been visited, mark  visited and enqueue
-//         for(i = adj[s].begin(); i != adj[s].end(); ++i){
-//           if(!visited[*i]){
-//             visited[*i] = true;
-//             q.push(*i);
-//           }
-//         }
-//       }
-//       cout << endl;
-//     }
-// };
 int main(int argc, char* argv[])
 {
   int numOfVertices;
@@ -213,10 +187,10 @@ int main(int argc, char* argv[])
   Graph a = Graph(E, numOfVertices);
   a.print();
   cout << endl;
-  int **matrix = distanceMatrix(a.getGraph() , numOfVertices);
-  printMatrix(matrix, numOfVertices);
+  int **dMatrix = distanceMatrix(a.getGraph() , numOfVertices);
+  printMatrix(dMatrix, numOfVertices);
   cout << endl;
-
+  cout << diameter(a.getGraph(), numOfVertices) << endl;
   // cout << "V: " << endl;
   // for (size_t i = 0; i < V.size(); i++) {
   //   cout << V.at(i) << ", ";
